@@ -1,0 +1,27 @@
+import { HardhatUserConfig } from "hardhat/config";
+import "@nomicfoundation/hardhat-toolbox-viem";
+
+const config: HardhatUserConfig = {
+  solidity: {
+    version: "0.8.24",
+    settings: {
+      evmVersion: "cancun",
+      optimizer: {
+        enabled: true,
+        runs: 200,
+      },
+      viaIR: true,
+    },
+  },
+  networks: {
+    hardhat: {
+      chainId: 31337,
+    },
+    monadTestnet: {
+      url: "https://testnet-rpc.monad.xyz",
+      chainId: 10143,
+    },
+  },
+};
+
+export default config;

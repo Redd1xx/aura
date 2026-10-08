@@ -1,0 +1,15 @@
+{
+  "name": "aura-contracts",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "hardhat test",
+    "compile": "hardhat compile"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox-viem": "^3.0.0",
+    "hardhat": "^2.22.18",
+    "typescript": "^5.0.0",
+    "viem": "^2.21.0"
+  }
+}
