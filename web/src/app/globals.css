@@ -1,64 +1,70 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --background: #05080f;
-  --foreground: #e6edf8;
-  --kuru-cyan: #00F0FF;
-  --kuru-emerald: #00FF87;
-  --kuru-amber: #FFB800;
-  --kuru-card: #090e18;
+  /* Hyperliquid Official Color System */
+  --background: #090909;
+  --foreground: #f7f8f8;
+  --hl-canvas: #090909;
+  --hl-surface: #121418;
+  --hl-surface-raised: #161922;
+  --hl-surface-hover: #1c202a;
+  --hl-border: #1e222d;
+  --hl-border-light: rgba(255, 255, 255, 0.08);
+
+  /* Semantic Trading Accents */
+  --hl-mint: #50E3C2;
+  --hl-mint-hover: #6efbdc;
+  --hl-green: #0ecb81;
+  --hl-red: #f6465d;
+  --hl-text-muted: #848e9c;
+  --hl-text-subtle: #565d68;
+
+  /* Typography Stacks */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-family: var(--font-sans);
   overflow-x: hidden;
-  letter-spacing: -0.015em;
+  letter-spacing: -0.011em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* High-velocity financial terminal grid */
-.aura-terminal-grid {
-  background-size: 24px 24px;
-  background-image: 
-    linear-gradient(to right, rgba(0, 240, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+/* Hyperliquid TradingView Canvas Ground */
+.hyperliquid-canvas {
+  background-color: var(--hl-canvas);
 }
 
-.aura-card {
-  background: linear-gradient(180deg, rgba(11, 17, 30, 0.95) 0%, rgba(7, 12, 22, 0.98) 100%);
-  border: 1px solid rgba(0, 240, 255, 0.12);
-  box-shadow: 
-    0 1px 3px rgba(0, 0, 0, 0.7),
-    0 8px 30px rgba(0, 0, 0, 0.8),
-    inset 0 1px 0 rgba(0, 240, 255, 0.1);
+.hyperliquid-panel {
+  background-color: var(--hl-surface);
+  border-color: var(--hl-border);
 }
 
-.aura-card:hover {
-  border-color: rgba(0, 240, 255, 0.3);
-  box-shadow: 
-    0 1px 3px rgba(0, 0, 0, 0.7),
-    0 12px 35px rgba(0, 0, 0, 0.9),
-    0 0 25px rgba(0, 240, 255, 0.08),
-    inset 0 1px 0 rgba(0, 240, 255, 0.2);
+.tabular-numbers {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
 }
 
-.kuru-glow {
-  box-shadow: 0 0 20px rgba(0, 240, 255, 0.25);
-}
-
+/* Hyperliquid subtle scrollbars */
 ::-webkit-scrollbar {
   width: 4px;
   height: 4px;
 }
 ::-webkit-scrollbar-track {
-  background: #05080f;
+  background: #090909;
 }
 ::-webkit-scrollbar-thumb {
-  background: #00F0FF;
+  background: #232733;
   border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--hl-mint);
 }

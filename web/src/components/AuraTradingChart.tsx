@@ -45,7 +45,7 @@ export const AuraTradingChart: React.FC<{ pair: string }> = ({ pair }) => {
     candlesRef.current = initial;
   }, [pair]);
 
-  // High-performance canvas drawing loop
+  // High-performance canvas drawing loop with Hyperliquid color palette
   useEffect(() => {
     let animId: number;
 
@@ -67,8 +67,8 @@ export const AuraTradingChart: React.FC<{ pair: string }> = ({ pair }) => {
       const w = rect.width;
       const h = rect.height;
 
-      // Dark titanium slate background
-      ctx.fillStyle = "#090d16";
+      // Pure Hyperliquid Dark Canvas Ground
+      ctx.fillStyle = "#090909";
       ctx.fillRect(0, 0, w, h);
 
       const candles = candlesRef.current;
@@ -87,7 +87,7 @@ export const AuraTradingChart: React.FC<{ pair: string }> = ({ pair }) => {
       const maxVol = Math.max(...candles.map((c) => c.volume)) || 1;
 
       // Subtle horizontal gridlines
-      ctx.strokeStyle = "rgba(255, 255, 255, 0.05)";
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.04)";
       ctx.lineWidth = 1;
       const gridSteps = 4;
       for (let i = 0; i <= gridSteps; i++) {
@@ -98,7 +98,7 @@ export const AuraTradingChart: React.FC<{ pair: string }> = ({ pair }) => {
         ctx.stroke();
 
         const priceLabel = (maxP - (pRange / gridSteps) * i).toFixed(pair.includes("CHOG") ? 4 : 2);
-        ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
+        ctx.fillStyle = "rgba(255, 255, 255, 0.35)";
         ctx.font = "9px 'JetBrains Mono', monospace";
         ctx.textAlign = "right";
         ctx.fillText(priceLabel, w - 8, y - 3);
@@ -106,11 +106,11 @@ export const AuraTradingChart: React.FC<{ pair: string }> = ({ pair }) => {
 
       const candleW = Math.max(3, (w - 60) / candles.length - 2);
 
-      // Draw Candlesticks & Volume
+      // Draw Candlesticks & Volume (Hyperliquid Exact: Mint Green #0ecb81 / Crimson Red #f6465d)
       candles.forEach((c, idx) => {
         const x = 12 + idx * (candleW + 2);
         const isUp = c.close >= c.open;
-        const color = isUp ? "#10b981" : "#ef4444";
+        const color = isUp ? "#0ecb81" : "#f6465d";
 
         const yOpen = chartH - ((c.open - minP) / pRange) * chartH;
         const yClose = chartH - ((c.close - minP) / pRange) * chartH;
@@ -133,12 +133,12 @@ export const AuraTradingChart: React.FC<{ pair: string }> = ({ pair }) => {
 
         // Volume Bar
         const barH = (c.volume / maxVol) * (volH - 10);
-        ctx.fillStyle = isUp ? "rgba(16, 185, 129, 0.35)" : "rgba(239, 68, 68, 0.35)";
+        ctx.fillStyle = isUp ? "rgba(14, 203, 129, 0.3)" : "rgba(246, 70, 93, 0.3)";
         ctx.fillRect(x, h - barH - 4, candleW, barH);
       });
 
-      // EMA 20 overlay line (Amber)
-      ctx.strokeStyle = "rgba(245, 158, 11, 0.85)";
+      // EMA 20 overlay line (Hyperliquid Mint #50E3C2)
+      ctx.strokeStyle = "rgba(80, 227, 194, 0.85)";
       ctx.lineWidth = 1.8;
       ctx.beginPath();
       candles.forEach((c, idx) => {
@@ -151,7 +151,7 @@ export const AuraTradingChart: React.FC<{ pair: string }> = ({ pair }) => {
 
       // Crosshair
       if (crosshair && crosshair.x > 0 && crosshair.x < w && crosshair.y > 0 && crosshair.y < h) {
-        ctx.strokeStyle = "rgba(0, 240, 255, 0.4)";
+        ctx.strokeStyle = "rgba(80, 227, 194, 0.4)";
         ctx.setLineDash([4, 4]);
         ctx.beginPath();
         ctx.moveTo(crosshair.x, 0);
@@ -196,30 +196,30 @@ export const AuraTradingChart: React.FC<{ pair: string }> = ({ pair }) => {
   const latest = candlesRef.current[candlesRef.current.length - 1];
 
   return (
-    <div className="flex flex-col bg-[#070b12] border border-[#00f0ff]/15 rounded-2xl overflow-hidden shadow-2xl">
-      {/* Chart Top Bar */}
-      <div className="flex flex-wrap items-center justify-between px-4 py-2.5 bg-[#0a0f1a] border-b border-white/[0.06] text-xs font-mono">
+    <div className="flex-1 flex flex-col bg-[#090909] overflow-hidden select-none">
+      {/* Chart Top Bar (Hyperliquid style) */}
+      <div className="flex flex-wrap items-center justify-between px-3 py-2 bg-[#0c0c0c] border-b border-[#1e222d] text-xs font-mono shrink-0">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-white text-sm tracking-wide">{pair}</span>
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-semibold">
+            <span className="font-bold text-white text-xs tracking-wide">{pair}</span>
+            <span className="text-[10px] px-1.5 py-0.2 rounded bg-[#0ecb81]/15 text-[#0ecb81] border border-[#0ecb81]/30 font-semibold">
               KURU SPOT
             </span>
           </div>
 
           {hoveredCandle ? (
-            <div className="hidden sm:flex items-center gap-3 text-[11px] text-neutral-400">
-              <span>O: <span className="text-white">{hoveredCandle.open.toFixed(2)}</span></span>
-              <span>H: <span className="text-emerald-400">{hoveredCandle.high.toFixed(2)}</span></span>
-              <span>L: <span className="text-red-400">{hoveredCandle.low.toFixed(2)}</span></span>
-              <span>C: <span className="text-white font-bold">{hoveredCandle.close.toFixed(2)}</span></span>
-              <span>Vol: <span className="text-amber-400">{hoveredCandle.volume.toLocaleString()}</span></span>
+            <div className="hidden sm:flex items-center gap-3 text-[11px] text-[#848e9c]">
+              <span>O: <span className="text-white tabular-nums">{hoveredCandle.open.toFixed(2)}</span></span>
+              <span>H: <span className="text-[#0ecb81] tabular-nums">{hoveredCandle.high.toFixed(2)}</span></span>
+              <span>L: <span className="text-[#f6465d] tabular-nums">{hoveredCandle.low.toFixed(2)}</span></span>
+              <span>C: <span className="text-white font-bold tabular-nums">{hoveredCandle.close.toFixed(2)}</span></span>
+              <span>Vol: <span className="text-neutral-300 tabular-nums">{hoveredCandle.volume.toLocaleString()}</span></span>
             </div>
           ) : latest ? (
-            <div className="hidden sm:flex items-center gap-3 text-[11px] text-neutral-400">
-              <span>Last: <span className="text-white font-bold">{latest.close.toFixed(2)}</span></span>
-              <span className="text-emerald-400 font-semibold">+4.82%</span>
-              <span className="text-amber-400">EMA(20): {latest.close.toFixed(2)}</span>
+            <div className="hidden sm:flex items-center gap-3 text-[11px] text-[#848e9c]">
+              <span>Last: <span className="text-white font-bold tabular-nums">{latest.close.toFixed(2)}</span></span>
+              <span className="text-[#0ecb81] font-semibold tabular-nums">+4.82%</span>
+              <span className="text-[#50E3C2] tabular-nums">EMA(20): {latest.close.toFixed(2)}</span>
             </div>
           ) : null}
         </div>
@@ -230,32 +230,32 @@ export const AuraTradingChart: React.FC<{ pair: string }> = ({ pair }) => {
             <button
               key={tf}
               onClick={() => setTimeframe(tf)}
-              className={`px-2 py-1 rounded text-[11px] font-semibold transition-all ${
+              className={`px-2 py-0.5 rounded text-[11px] font-semibold transition-all ${
                 timeframe === tf
-                  ? "bg-[#00f0ff]/20 text-[#00f0ff] border border-[#00f0ff]/40"
-                  : "text-neutral-400 hover:text-white"
+                  ? "bg-[#50E3C2]/20 text-[#50E3C2] border border-[#50E3C2]/40"
+                  : "text-[#848e9c] hover:text-white"
               }`}
             >
               {tf.toUpperCase()}
             </button>
           ))}
-          <div className="ml-2 pl-2 border-l border-white/10 flex items-center gap-1.5 text-[#00f0ff] text-[10px]">
-            <Zap className="w-3 h-3 text-[#00f0ff] animate-pulse" />
-            <span>Monad Cancun Feed</span>
+          <div className="ml-2 pl-2 border-l border-[#1e222d] flex items-center gap-1.5 text-[#50E3C2] text-[10px]">
+            <Zap className="w-3 h-3 text-[#50E3C2] animate-pulse" />
+            <span>Monad Stream</span>
           </div>
         </div>
       </div>
 
       {/* Canvas Viewport */}
-      <div className="relative w-full h-[280px] sm:h-[320px] cursor-crosshair">
+      <div className="relative flex-1 w-full min-h-[220px] cursor-crosshair">
         <canvas
           ref={canvasRef}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
           className="w-full h-full block"
         />
-        <div className="absolute bottom-2 left-4 pointer-events-none text-[10px] font-mono text-neutral-500">
-          Sub-second Continuous Settlement · Monad 10,000 TPS Parallel EVM
+        <div className="absolute bottom-2 left-3 pointer-events-none text-[10px] font-mono text-[#565d68]">
+          Monad Cancun Continuous Finality (~340ms) · Kuru CLOB Depth
         </div>
       </div>
     </div>
