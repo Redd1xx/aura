@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "AURA Vault | Monad Track 01",
-  description: "Autonomous Liquidity Vault & High-Velocity Credit Engine on Monad",
+  title: "AURA Vault | Composable Credit & High-Velocity Yield on Monad",
+  description: "Autonomous Liquidity Vault & Continuous Isolated Credit Accounts on Monad Cancun Testnet",
 };
 
 export default function RootLayout({
@@ -13,7 +13,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark">
-      <body className="min-h-screen bg-[#05080f] text-[#e6edf8] font-sans antialiased aura-terminal-grid selection:bg-[#00F0FF]/30 selection:text-white">
+      <body className="min-h-screen bg-[#0d0e12] text-white font-sans antialiased selection:bg-[#E1007E]/30 selection:text-white">
         {children}
       </body>
     </html>
