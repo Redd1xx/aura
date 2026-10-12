@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { AuraTradingChart } from "../components/AuraTradingChart";
 import {
   Zap,
@@ -10,7 +10,8 @@ import {
   Globe,
   Wallet,
   Settings,
-  Maximize2,
+  MoreHorizontal,
+  Search,
   Lock,
   ArrowUpRight,
   ArrowDownLeft,
@@ -21,98 +22,136 @@ import {
   RefreshCw,
   Coins,
   Cpu,
+  Layers,
+  BarChart3,
+  Bot,
+  ExternalLink,
 } from "lucide-react";
 import { playTick, playOrderSubmit, playDepositChime } from "../lib/audio";
-import { createPublicClient, http, formatEther } from "viem";
+import { createPublicClient, http } from "viem";
 import { monadTestnet } from "../config/monad";
 
+type TabMode = "earn" | "agentic" | "positions" | "kuru";
+
 export default function Home() {
-  const [selectedPair, setSelectedPair] = useState("MON-PERP");
-  const [activeTab, setActiveTab] = useState<"positions" | "credit_accounts" | "isolated_markets" | "trades">("credit_accounts");
-  const [orderSide, setOrderSide] = useState<"buy" | "sell">("buy");
-  const [orderType, setOrderType] = useState<"market" | "limit">("market");
-  const [orderAmount, setOrderAmount] = useState<string>("5.0");
-  const [orderPrice, setOrderPrice] = useState<string>("24.85");
-  const [leverage, setLeverage] = useState<number>(4);
+  const [activeTab, setActiveTab] = useState<TabMode>("earn");
+  const [currencyFilter, setCurrencyFilter] = useState("all");
+  const [assetTypeFilter, setAssetTypeFilter] = useState("all");
+  const [modeFilter, setModeFilter] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Credit Account Modal state
+  const [selectedStrategy, setSelectedStrategy] = useState<any | null>(null);
+  const [depositAmount, setDepositAmount] = useState<string>("10.0");
+  const [selectedLeverage, setSelectedLeverage] = useState<number>(4);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [txSuccess, setTxSuccess] = useState<string | null>(null);
 
-  // Live pairs
-  const pairs = [
-    { name: "MON-PERP", price: "24.85", change: "+12.4%", vol: "$148.2M", high: "26.40", low: "21.90", funding: "0.0100%" },
-    { name: "USDT-PERP", price: "24.84", change: "+12.1%", vol: "$84.6M", high: "25.80", low: "21.85", funding: "0.0085%" },
-    { name: "CHOG-PERP", price: "0.0420", change: "+38.4%", vol: "$22.1M", high: "0.0480", low: "0.0310", funding: "0.0240%" },
-    { name: "DAK-PERP", price: "1.18", change: "-2.1%", vol: "$9.4M", high: "1.24", low: "1.12", funding: "0.0050%" },
-  ];
-
-  const currentPair = pairs.find((p) => p.name === selectedPair) || pairs[0];
-
-  // Gearbox-style Credit Accounts
-  const creditAccounts = [
+  // Gearbox-style Earn / Credit Opportunities
+  const opportunities = [
     {
-      id: "CA-0x491a",
-      name: "Kuru High-Frequency Scalper",
-      borrowed: "14.50 MON",
-      collateral: "22.00 MON",
-      totalExposure: "36.50 MON",
-      leverage: "2.6x",
-      healthFactor: 1.82,
-      healthStatus: "HEALTHY",
-      router: "Kuru CLOB Router (0xcf7e...)",
-      pnl: "+14.8%",
+      id: "opp-1",
+      name: "Kuru Scalper v1.4 / MON",
+      curator: "Advance Risk Engine",
+      tag: "AGENTIC",
+      type: "Leverage" as const,
+      totalSupply: "$1.19M",
+      supplyUnit: "1.19M MON",
+      apy: "17.83%",
+      apyHighlight: true,
+      collaterals: ["MON", "USDC", "USDT"],
+      borrowed: "$840.5K",
+      maxLev: "10x",
+      description: "Automated high-frequency limit order scalper trading on Kuru CLOB with continuous credit lines.",
     },
     {
-      id: "CA-0x892b",
-      name: "T3tris Automated Rebalancer",
-      borrowed: "28.00 MON",
-      collateral: "35.00 MON",
-      totalExposure: "63.00 MON",
-      leverage: "4.0x",
-      healthFactor: 1.65,
-      healthStatus: "HEALTHY",
-      router: "T3tris LP Vault (0x5fbd...)",
-      pnl: "+22.4%",
+      id: "opp-2",
+      name: "T3tris LP Vault / MON-USDC",
+      curator: "T3tris Algorithmic",
+      tag: "RWA",
+      type: "Leverage" as const,
+      totalSupply: "$754.25K",
+      supplyUnit: "754.34K MON",
+      apy: "14.46%",
+      apyHighlight: false,
+      collaterals: ["MON", "USDC"],
+      borrowed: "$510.2K",
+      maxLev: "5x",
+      description: "Delta-neutral liquidity provision across concentrated liquidity pools with automatic impermanent loss hedging.",
     },
     {
-      id: "CA-0x12c4",
-      name: "Cross-DEX Arbitrage Worker",
-      borrowed: "6.20 MON",
-      collateral: "8.00 MON",
-      totalExposure: "14.20 MON",
-      leverage: "1.8x",
-      healthFactor: 1.48,
-      healthStatus: "MODERATE",
-      router: "Multi-Pool Router (0x33e1...)",
-      pnl: "+8.1%",
+      id: "opp-3",
+      name: "MON Passive Lending Pool",
+      curator: "Gearbox Core Risk",
+      tag: "CORE",
+      type: "Lend" as const,
+      totalSupply: "$1.55M",
+      supplyUnit: "1.55M MON",
+      apy: "6.62%",
+      apyHighlight: false,
+      collaterals: ["MON"],
+      borrowed: "$920.0K",
+      maxLev: "1x",
+      description: "Permissionless single-sided MON deposit pool supplying liquidity to approved autonomous credit accounts.",
+    },
+    {
+      id: "opp-4",
+      name: "Beefy CHOG / MON Arbitrage",
+      curator: "Gami Labs",
+      tag: "MEME-DEFI",
+      type: "Leverage" as const,
+      totalSupply: "$260.09K",
+      supplyUnit: "3.15M CHOG",
+      apy: "32.38%",
+      apyHighlight: true,
+      collaterals: ["CHOG", "MON"],
+      borrowed: "$180.4K",
+      maxLev: "4x",
+      description: "Cross-DEX statistical arbitrage between Kuru orderbook and Uniswap v3 on Monad testnet.",
+    },
+    {
+      id: "opp-5",
+      name: "Dakota Institutional Yield",
+      curator: "Dakota Prime",
+      tag: "RWA",
+      type: "Leverage" as const,
+      totalSupply: "$2.04M",
+      supplyUnit: "810.37 MON",
+      apy: "22.83%",
+      apyHighlight: true,
+      collaterals: ["DAK", "MON", "USDC"],
+      borrowed: "$1.45M",
+      maxLev: "6x",
+      description: "Institutional credit pool funding verifiable treasury trading bots with dual-approval safeguards.",
+    },
+    {
+      id: "opp-6",
+      name: "USDC Stablecoin Savings",
+      curator: "UltraYield",
+      tag: "STABLE",
+      type: "Lend" as const,
+      totalSupply: "$10.89M",
+      supplyUnit: "10.89M USDC",
+      apy: "8.15%",
+      apyHighlight: false,
+      collaterals: ["USDC"],
+      borrowed: "$8.92M",
+      maxLev: "1x",
+      description: "Senior tranche stablecoin lending pool with priority liquidation claim and over-collateralization guarantee.",
     },
   ];
 
-  // Morpho-style Isolated Markets
-  const isolatedMarkets = [
-    { pair: "MON / USDC", lltv: "86.0%", curator: "Advance Risk Engine v2", supplied: "142.50 MON", borrowed: "38.45 MON", supplyApy: "14.2%", borrowApr: "4.8%", util: 27 },
-    { pair: "MON / USDT", lltv: "84.0%", curator: "T3tris Algorithmic", supplied: "98.20 MON", borrowed: "34.10 MON", supplyApy: "13.9%", borrowApr: "5.1%", util: 35 },
-    { pair: "CHOG / MON", lltv: "77.0%", curator: "Chog Community Risk", supplied: "45.00 MON", borrowed: "28.00 MON", supplyApy: "28.4%", borrowApr: "8.6%", util: 62 },
-    { pair: "DAK / MON", lltv: "80.0%", curator: "Dakota Institutional", supplied: "32.10 MON", borrowed: "15.40 MON", supplyApy: "19.5%", borrowApr: "6.2%", util: 48 },
-  ];
+  const filteredOpportunities = opportunities.filter((opp) => {
+    if (currencyFilter === "mon" && !opp.collaterals.includes("MON")) return false;
+    if (currencyFilter === "usd" && !opp.collaterals.includes("USDC") && !opp.collaterals.includes("USDT")) return false;
+    if (assetTypeFilter === "rwa" && opp.tag !== "RWA") return false;
+    if (modeFilter === "lend" && opp.type !== "Lend") return false;
+    if (modeFilter === "leverage" && opp.type !== "Leverage") return false;
+    if (searchQuery && !opp.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+    return true;
+  });
 
-  // Kuru DEX Orderbook Asks & Bids (Hyperliquid color tokens)
-  const orderbookAsks = [
-    { price: "24.94", size: "18,450.0", total: "459,205", depth: "95%" },
-    { price: "24.92", size: "14,200.5", total: "353,876", depth: "80%" },
-    { price: "24.90", size: "9,850.0", total: "245,265", depth: "62%" },
-    { price: "24.88", size: "6,410.2", total: "159,485", depth: "45%" },
-    { price: "24.86", size: "3,110.0", total: "77,314", depth: "25%" },
-  ];
-
-  const orderbookBids = [
-    { price: "24.84", size: "4,210.5", total: "104,588", depth: "28%" },
-    { price: "24.82", size: "8,940.0", total: "221,890", depth: "52%" },
-    { price: "24.80", size: "15,200.2", total: "376,964", depth: "75%" },
-    { price: "24.78", size: "22,150.0", total: "548,877", depth: "88%" },
-    { price: "24.75", size: "31,400.0", total: "777,150", depth: "100%" },
-  ];
-
-  const handleExecuteTrade = async () => {
+  const handleOpenAccount = async () => {
     playTick();
     setIsSubmitting(true);
     setTxSuccess(null);
@@ -123,447 +162,525 @@ export default function Home() {
       });
       const block = await client.getBlock({ blockTag: "latest" });
       playOrderSubmit();
-      setTxSuccess(`Order executed on Monad Cancun! Block #${block.number} confirmed with 340ms finality.`);
+      setTxSuccess(`Credit Account provisioned on Monad Cancun! Block #${block.number} confirmed with 340ms finality.`);
+      setTimeout(() => {
+        playDepositChime();
+      }, 500);
     } catch (e: any) {
-      alert("Order error: " + e?.message);
+      alert("Error: " + e?.message);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="h-screen w-screen bg-[#090909] text-[#f7f8f8] font-sans flex flex-col overflow-hidden select-none">
-      {/* 1. TOP DOCKED HEADER BAR (Hyperliquid / dYdX style) */}
-      <header className="h-11 bg-[#0c0c0c] border-b border-[#1e222d] px-3 flex items-center justify-between shrink-0 text-xs font-mono">
-        {/* Left: Brand & Market Selector Dropdown */}
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded bg-[#50E3C2] flex items-center justify-center shadow-[0_0_12px_rgba(80,227,194,0.4)]">
-              <Zap className="w-3.5 h-3.5 text-black font-bold" />
+    <div className="min-h-screen bg-[#0d0e12] text-[#ffffff] font-sans flex flex-col antialiased selection:bg-[#E1007E]/30 selection:text-white">
+      {/* 1. TOP HEADER (Exact Gearbox Protocol Layout from Screenshot) */}
+      <header className="h-16 border-b border-white/[0.08] bg-[#0d0e12] px-4 sm:px-8 flex items-center justify-between sticky top-0 z-50">
+        <div className="flex items-center gap-8">
+          {/* Logo */}
+          <div className="flex items-center gap-2.5 cursor-pointer">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#E1007E] to-[#ff47a3] flex items-center justify-center shadow-[0_0_15px_rgba(225,0,126,0.5)]">
+              <Zap className="w-4 h-4 text-white font-bold" />
             </div>
-            <span className="font-extrabold text-white tracking-wider text-sm font-sans">AURA</span>
+            <span className="font-extrabold text-white text-lg tracking-tight">
+              AURA <span className="text-[#E1007E] font-mono text-sm">VAULT</span>
+            </span>
           </div>
 
-          {/* Pair Dropdown Pill */}
-          <div className="relative group">
-            <button className="flex items-center gap-2 px-2.5 py-1 rounded bg-[#161922] hover:bg-[#1f2430] border border-[#1e222d] text-white font-bold transition-all">
-              <span>{currentPair.name}</span>
-              <span className="text-[#0ecb81] text-[11px] tabular-nums font-mono">{currentPair.price}</span>
-              <ChevronDown className="w-3 h-3 text-neutral-400" />
+          {/* Navigation Links with Gearbox Hot Pink Underline */}
+          <nav className="hidden md:flex items-center gap-6 text-sm font-semibold">
+            <button
+              onClick={() => {
+                playTick();
+                setActiveTab("agentic");
+              }}
+              className={`pb-1 transition-all ${
+                activeTab === "agentic"
+                  ? "text-white border-b-2 border-[#E1007E]"
+                  : "text-neutral-400 hover:text-white"
+              }`}
+            >
+              Agentic
             </button>
-            <div className="absolute left-0 top-full mt-1 w-56 bg-[#121418] border border-[#1e222d] rounded-lg shadow-2xl py-1 hidden group-hover:block z-50">
-              {pairs.map((p) => (
-                <div
-                  key={p.name}
-                  onClick={() => {
-                    playTick();
-                    setSelectedPair(p.name);
-                  }}
-                  className="px-3 py-1.5 hover:bg-[#1a1e28] cursor-pointer flex justify-between items-center text-xs"
-                >
-                  <span className="font-bold text-white">{p.name}</span>
-                  <span className={`tabular-nums font-mono ${p.change.startsWith("+") ? "text-[#0ecb81]" : "text-[#f6465d]"}`}>
-                    {p.price} ({p.change})
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
 
-          {/* Market Stats Strip (Hyperliquid design) */}
-          <div className="hidden lg:flex items-center gap-5 text-[11px] text-neutral-400 border-l border-[#1e222d] pl-4">
-            <div>
-              <span className="text-[#848e9c] block text-[9px] uppercase">24h Change</span>
-              <span className="text-[#0ecb81] font-bold tabular-nums">{currentPair.change}</span>
-            </div>
-            <div>
-              <span className="text-[#848e9c] block text-[9px] uppercase">24h High</span>
-              <span className="text-neutral-200 tabular-nums">{currentPair.high}</span>
-            </div>
-            <div>
-              <span className="text-[#848e9c] block text-[9px] uppercase">24h Low</span>
-              <span className="text-neutral-200 tabular-nums">{currentPair.low}</span>
-            </div>
-            <div>
-              <span className="text-[#848e9c] block text-[9px] uppercase">24h Monad Volume</span>
-              <span className="text-neutral-200 tabular-nums">{currentPair.vol}</span>
-            </div>
-            <div>
-              <span className="text-[#848e9c] block text-[9px] uppercase">1h Funding</span>
-              <span className="text-[#50E3C2] tabular-nums">{currentPair.funding}</span>
-            </div>
-          </div>
+            <button
+              onClick={() => {
+                playTick();
+                setActiveTab("earn");
+              }}
+              className={`pb-1 transition-all ${
+                activeTab === "earn"
+                  ? "text-white border-b-2 border-[#E1007E]"
+                  : "text-neutral-400 hover:text-white"
+              }`}
+            >
+              Earn
+            </button>
+
+            <button
+              onClick={() => {
+                playTick();
+                setActiveTab("positions");
+              }}
+              className={`pb-1 transition-all ${
+                activeTab === "positions"
+                  ? "text-white border-b-2 border-[#E1007E]"
+                  : "text-neutral-400 hover:text-white"
+              }`}
+            >
+              Positions
+            </button>
+
+            <button
+              onClick={() => {
+                playTick();
+                setActiveTab("kuru");
+              }}
+              className={`pb-1 transition-all ${
+                activeTab === "kuru"
+                  ? "text-white border-b-2 border-[#E1007E]"
+                  : "text-neutral-400 hover:text-white"
+              }`}
+            >
+              Kuru CLOB
+            </button>
+          </nav>
         </div>
 
-        {/* Right: Network Status, Account & Wallet */}
+        {/* Right Action: Hot Pink Gearbox Pill Button */}
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-[#0ecb81]/10 border border-[#0ecb81]/30 text-[#0ecb81] text-[10px]">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#0ecb81] animate-pulse" />
-            <span>Monad Cancun · 10,000 TPS</span>
+          <div className="hidden lg:flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.05] border border-white/[0.08] text-xs font-mono text-neutral-300">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span>Monad Cancun Testnet</span>
           </div>
 
-          <div className="flex items-center gap-2 px-2.5 py-1 rounded bg-[#161922] border border-[#1e222d] text-neutral-300">
-            <span className="text-[#848e9c] text-[10px]">Equity:</span>
-            <span className="text-white font-bold tabular-nums">$10,480.20</span>
-          </div>
-
-          <button className="flex items-center gap-1.5 px-3 py-1 rounded bg-[#50E3C2] hover:bg-[#6efbdc] text-black font-bold text-xs transition-all shadow-[0_0_12px_rgba(80,227,194,0.3)]">
+          <button className="gearbox-btn-pink flex items-center gap-2 text-xs">
             <Wallet className="w-3.5 h-3.5" />
-            <span>0x71c...99a2</span>
+            <span>Connect Wallet</span>
+          </button>
+
+          <button className="w-9 h-9 rounded-full bg-[#16181d] border border-white/[0.08] flex items-center justify-center text-neutral-400 hover:text-white transition-all">
+            <MoreHorizontal className="w-4 h-4" />
           </button>
         </div>
       </header>
 
-      {/* 2. MAIN DOCKED WORKSTATION (Left: Chart & Tables | Center: Orderbook | Right: Order Form) */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* LEFT COLUMN: Chart + Docked Bottom Panel */}
-        <div className="flex-1 flex flex-col border-r border-[#1e222d] min-w-0">
-          {/* Top: Candlestick Chart Stage (TradingView / Hyperliquid style) */}
-          <div className="h-[58%] border-b border-[#1e222d] flex flex-col min-h-0 bg-[#090909]">
-            <AuraTradingChart pair={selectedPair} />
-          </div>
-
-          {/* Bottom Docked Panel: Positions, Gearbox Credit Accounts, Morpho Markets */}
-          <div className="flex-1 flex flex-col bg-[#0c0c0c] min-h-0">
-            {/* Dock Tabs Header */}
-            <div className="h-9 bg-[#0c0c0c] border-b border-[#1e222d] px-3 flex items-center justify-between shrink-0 font-mono text-xs">
-              <div className="flex items-center gap-1">
-                <button
-                  onClick={() => {
-                    playTick();
-                    setActiveTab("credit_accounts");
-                  }}
-                  className={`px-3 py-1 rounded-t text-xs font-bold transition-all ${
-                    activeTab === "credit_accounts"
-                      ? "text-[#50E3C2] border-b-2 border-[#50E3C2] bg-[#161922]"
-                      : "text-neutral-400 hover:text-white"
-                  }`}
-                >
-                  Credit Accounts ({creditAccounts.length})
-                </button>
-                <button
-                  onClick={() => {
-                    playTick();
-                    setActiveTab("isolated_markets");
-                  }}
-                  className={`px-3 py-1 rounded-t text-xs font-bold transition-all ${
-                    activeTab === "isolated_markets"
-                      ? "text-[#50E3C2] border-b-2 border-[#50E3C2] bg-[#161922]"
-                      : "text-neutral-400 hover:text-white"
-                  }`}
-                >
-                  Isolated Markets (Morpho)
-                </button>
-                <button
-                  onClick={() => {
-                    playTick();
-                    setActiveTab("positions");
-                  }}
-                  className={`px-3 py-1 rounded-t text-xs font-bold transition-all ${
-                    activeTab === "positions"
-                      ? "text-[#50E3C2] border-b-2 border-[#50E3C2] bg-[#161922]"
-                      : "text-neutral-400 hover:text-white"
-                  }`}
-                >
-                  Open Positions (1)
-                </button>
-              </div>
-
-              <div className="text-[11px] text-[#848e9c]">
-                Continuous Credit Protocol · Auto-Deleveraging at HF &lt; 1.05
-              </div>
-            </div>
-
-            {/* Dock Content Body */}
-            <div className="flex-1 overflow-y-auto p-3 text-xs font-mono">
-              {activeTab === "credit_accounts" && (
-                <div className="space-y-2">
-                  <div className="grid grid-cols-12 text-[10px] text-[#848e9c] uppercase pb-1.5 border-b border-[#1e222d] px-2">
-                    <span className="col-span-3">Credit Account / Strategy</span>
-                    <span className="col-span-2">Borrowed (Advance)</span>
-                    <span className="col-span-2">Collateral</span>
-                    <span className="col-span-1">Lev</span>
-                    <span className="col-span-2">Health Factor</span>
-                    <span className="col-span-2 text-right">PnL</span>
-                  </div>
-
-                  {creditAccounts.map((ca) => (
-                    <div
-                      key={ca.id}
-                      className="grid grid-cols-12 items-center px-2 py-2 rounded bg-[#121418] hover:bg-[#161922] border border-white/[0.04] transition-all"
-                    >
-                      <div className="col-span-3">
-                        <span className="text-white font-bold block">{ca.name}</span>
-                        <span className="text-[#848e9c] text-[10px]">{ca.router}</span>
-                      </div>
-                      <div className="col-span-2 text-white tabular-nums">{ca.borrowed}</div>
-                      <div className="col-span-2 text-neutral-300 tabular-nums">{ca.collateral}</div>
-                      <div className="col-span-1 text-[#50E3C2] font-bold">{ca.leverage}</div>
-                      <div className="col-span-2 flex items-center gap-1.5">
-                        <span className="text-[#0ecb81] font-bold tabular-nums">{ca.healthFactor}</span>
-                        <span className="text-[9px] px-1.5 py-0.2 rounded bg-[#0ecb81]/15 text-[#0ecb81] font-bold">
-                          {ca.healthStatus}
-                        </span>
-                      </div>
-                      <div className="col-span-2 text-right text-[#0ecb81] font-bold tabular-nums">{ca.pnl}</div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {activeTab === "isolated_markets" && (
-                <div className="space-y-2">
-                  <div className="grid grid-cols-12 text-[10px] text-[#848e9c] uppercase pb-1.5 border-b border-[#1e222d] px-2">
-                    <span className="col-span-3">Market / LLTV</span>
-                    <span className="col-span-3">Risk Curator</span>
-                    <span className="col-span-2">Total Supplied</span>
-                    <span className="col-span-2">Supply APY</span>
-                    <span className="col-span-2 text-right">Utilization</span>
-                  </div>
-
-                  {isolatedMarkets.map((m) => (
-                    <div
-                      key={m.pair}
-                      className="grid grid-cols-12 items-center px-2 py-2 rounded bg-[#121418] hover:bg-[#161922] border border-white/[0.04] transition-all"
-                    >
-                      <div className="col-span-3">
-                        <span className="text-white font-bold block">{m.pair}</span>
-                        <span className="text-[#848e9c] text-[10px]">LLTV {m.lltv}</span>
-                      </div>
-                      <div className="col-span-3 text-neutral-300">{m.curator}</div>
-                      <div className="col-span-2 text-white tabular-nums">{m.supplied}</div>
-                      <div className="col-span-2 text-[#0ecb81] font-bold tabular-nums">{m.supplyApy}</div>
-                      <div className="col-span-2 text-right text-neutral-200 tabular-nums">{m.util}%</div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {activeTab === "positions" && (
-                <div className="p-4 text-center text-[#848e9c] space-y-2">
-                  <p>1 Open Position on Kuru CLOB</p>
-                  <div className="inline-flex items-center gap-4 px-4 py-2 rounded bg-[#121418] border border-[#1e222d] text-white">
-                    <span className="text-[#0ecb81] font-bold">LONG MON-PERP</span>
-                    <span className="tabular-nums">Size: 10.0 MON</span>
-                    <span className="tabular-nums">Entry: $24.12</span>
-                    <span className="tabular-nums">Mark: $24.85</span>
-                    <span className="text-[#0ecb81] font-bold tabular-nums">PnL: +$7.30 (+3.02%)</span>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* CENTER COLUMN: Kuru CLOB Depth Orderbook (250px) */}
-        <div className="w-64 border-r border-[#1e222d] bg-[#0c0c0c] flex flex-col shrink-0">
-          <div className="h-9 border-b border-[#1e222d] px-3 flex items-center justify-between font-mono text-xs text-[#848e9c]">
-            <span className="font-bold text-white text-[11px]">KURU ORDERBOOK</span>
-            <span className="text-[10px]">0.01 Tick</span>
-          </div>
-
-          <div className="grid grid-cols-3 text-[10px] font-mono text-[#848e9c] px-3 py-1.5 border-b border-[#1e222d]">
-            <span>Price (USDC)</span>
-            <span className="text-right">Size (MON)</span>
-            <span className="text-right">Total</span>
-          </div>
-
-          {/* Asks (Sell Orders - Crimson Red #f6465d) */}
-          <div className="flex-1 flex flex-col justify-end overflow-hidden p-1 space-y-0.5 font-mono text-[11px]">
-            {orderbookAsks.map((ask) => (
-              <div
-                key={ask.price}
-                className="relative grid grid-cols-3 px-2 py-0.5 hover:bg-white/[0.04] cursor-pointer tabular-nums"
-              >
-                <div
-                  className="absolute right-0 top-0 bottom-0 bg-[#f6465d]/10 pointer-events-none"
-                  style={{ width: ask.depth }}
-                />
-                <span className="text-[#f6465d] font-bold z-10">{ask.price}</span>
-                <span className="text-right text-neutral-300 z-10">{ask.size}</span>
-                <span className="text-right text-[#848e9c] z-10">{ask.total}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* Spread Ribbon */}
-          <div className="py-1 px-3 bg-[#121418] border-y border-[#1e222d] flex justify-between items-center font-mono text-xs">
-            <span className="text-[#0ecb81] font-bold text-sm tabular-nums">24.85</span>
-            <span className="text-[#848e9c] text-[10px]">Spread: 0.02 (0.08%)</span>
-          </div>
-
-          {/* Bids (Buy Orders - Mint Green #0ecb81) */}
-          <div className="flex-1 overflow-hidden p-1 space-y-0.5 font-mono text-[11px]">
-            {orderbookBids.map((bid) => (
-              <div
-                key={bid.price}
-                className="relative grid grid-cols-3 px-2 py-0.5 hover:bg-white/[0.04] cursor-pointer tabular-nums"
-              >
-                <div
-                  className="absolute right-0 top-0 bottom-0 bg-[#0ecb81]/10 pointer-events-none"
-                  style={{ width: bid.depth }}
-                />
-                <span className="text-[#0ecb81] font-bold z-10">{bid.price}</span>
-                <span className="text-right text-neutral-300 z-10">{bid.size}</span>
-                <span className="text-right text-[#848e9c] z-10">{bid.total}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* RIGHT COLUMN: Order Entry & Credit Leverage Console (310px) */}
-        <div className="w-80 bg-[#0c0c0c] flex flex-col shrink-0 p-3.5 space-y-3.5 overflow-y-auto">
-          {/* Order Side Selector */}
-          <div className="grid grid-cols-2 p-0.5 rounded-lg bg-[#161922] border border-[#1e222d] font-mono text-xs">
-            <button
-              onClick={() => {
-                playTick();
-                setOrderSide("buy");
-              }}
-              className={`py-1.5 rounded-md font-bold transition-all ${
-                orderSide === "buy"
-                  ? "bg-[#0ecb81] text-black shadow-[0_0_12px_rgba(14,203,129,0.4)]"
-                  : "text-neutral-400 hover:text-white"
-              }`}
-            >
-              Buy / Long
-            </button>
-            <button
-              onClick={() => {
-                playTick();
-                setOrderSide("sell");
-              }}
-              className={`py-1.5 rounded-md font-bold transition-all ${
-                orderSide === "sell"
-                  ? "bg-[#f6465d] text-white shadow-[0_0_12px_rgba(246,70,93,0.4)]"
-                  : "text-neutral-400 hover:text-white"
-              }`}
-            >
-              Sell / Short
-            </button>
-          </div>
-
-          {/* Order Type Tabs */}
-          <div className="flex gap-2 font-mono text-xs border-b border-[#1e222d] pb-2">
-            <button
-              onClick={() => setOrderType("market")}
-              className={`pb-1 font-semibold ${
-                orderType === "market" ? "text-white border-b-2 border-[#50E3C2]" : "text-[#848e9c]"
-              }`}
-            >
-              Market
-            </button>
-            <button
-              onClick={() => setOrderType("limit")}
-              className={`pb-1 font-semibold ${
-                orderType === "limit" ? "text-white border-b-2 border-[#50E3C2]" : "text-[#848e9c]"
-              }`}
-            >
-              Limit
-            </button>
-          </div>
-
-          {/* Price & Size Input Fields */}
-          <div className="space-y-2.5 font-mono text-xs">
-            {orderType === "limit" && (
+      {/* 2. MAIN WORKSPACE */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-8 py-8 flex flex-col gap-6">
+        {/* Main Tab Views */}
+        {activeTab === "earn" && (
+          <div className="flex flex-col gap-6">
+            {/* Title & Announcement Banner */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <label className="text-[#848e9c] text-[10px] block mb-1">Price (USDC)</label>
-                <div className="flex items-center bg-[#121418] border border-[#1e222d] rounded px-2.5 py-1.5">
-                  <input
-                    type="text"
-                    value={orderPrice}
-                    onChange={(e) => setOrderPrice(e.target.value)}
-                    className="bg-transparent text-white w-full outline-none tabular-nums"
-                  />
-                  <span className="text-[#848e9c] text-[11px]">USDC</span>
+                <h1 className="text-3xl font-extrabold text-white tracking-tight">Earn & Leverage</h1>
+                <p className="text-xs sm:text-sm text-neutral-400 mt-1">
+                  Isolated credit accounts providing bounded continuous leverage to trading agents on Monad
+                </p>
+              </div>
+
+              {/* Version Pill */}
+              <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#16181d] border border-white/[0.08] text-xs text-neutral-300">
+                <span>Gearbox Credit Invariants Active</span>
+                <span className="text-[#E1007E] font-bold">Monad 10k TPS</span>
+              </div>
+            </div>
+
+            {/* Top 3 KPI Cards (Exact Gearbox Format from Screenshot) */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="gearbox-card p-5 space-y-1">
+                <span className="text-xs text-neutral-400 font-medium">Total TVL</span>
+                <div className="text-2xl sm:text-3xl font-extrabold text-white tabular-nums">$35.50M</div>
+                <span className="text-[11px] text-emerald-400 font-mono">+12.4% past 24h</span>
+              </div>
+
+              <div className="gearbox-card p-5 space-y-1">
+                <span className="text-xs text-neutral-400 font-medium">Total supply</span>
+                <div className="text-2xl sm:text-3xl font-extrabold text-white tabular-nums">$16.63M</div>
+                <span className="text-[11px] text-neutral-400 font-mono">Deposited into Senior Tranches</span>
+              </div>
+
+              <div className="gearbox-card p-5 space-y-1">
+                <span className="text-xs text-neutral-400 font-medium">Total borrowed</span>
+                <div className="text-2xl sm:text-3xl font-extrabold text-white tabular-nums">$13.52M</div>
+                <span className="text-[11px] text-[#E1007E] font-mono">Active Agent Credit Utilization</span>
+              </div>
+            </div>
+
+            {/* Segmented Filter Control Bar (Exact Gearbox Layout from Screenshot) */}
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+              <div className="flex flex-wrap items-center gap-2 text-xs font-medium">
+                {/* Network dropdown */}
+                <button className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-[#16181d] border border-white/[0.08] text-white">
+                  <span className="w-2 h-2 rounded-full bg-[#E1007E]" />
+                  <span>Monad Cancun</span>
+                  <ChevronDown className="w-3.5 h-3.5 text-neutral-400" />
+                </button>
+
+                {/* Currency filter pills */}
+                <div className="flex rounded-xl bg-[#16181d] p-0.5 border border-white/[0.08]">
+                  <button
+                    onClick={() => setCurrencyFilter("all")}
+                    className={`px-3 py-1 rounded-lg transition-all ${
+                      currencyFilter === "all" ? "bg-[#252932] text-white font-bold" : "text-neutral-400 hover:text-white"
+                    }`}
+                  >
+                    All
+                  </button>
+                  <button
+                    onClick={() => setCurrencyFilter("usd")}
+                    className={`px-3 py-1 rounded-lg transition-all ${
+                      currencyFilter === "usd" ? "bg-[#252932] text-white font-bold" : "text-neutral-400 hover:text-white"
+                    }`}
+                  >
+                    USD
+                  </button>
+                  <button
+                    onClick={() => setCurrencyFilter("mon")}
+                    className={`px-3 py-1 rounded-lg transition-all ${
+                      currencyFilter === "mon" ? "bg-[#252932] text-white font-bold" : "text-neutral-400 hover:text-white"
+                    }`}
+                  >
+                    MON
+                  </button>
+                </div>
+
+                {/* Crypto vs RWA pills */}
+                <div className="flex rounded-xl bg-[#16181d] p-0.5 border border-white/[0.08]">
+                  <button
+                    onClick={() => setAssetTypeFilter("all")}
+                    className={`px-3 py-1 rounded-lg transition-all ${
+                      assetTypeFilter === "all" ? "bg-[#252932] text-white font-bold" : "text-neutral-400 hover:text-white"
+                    }`}
+                  >
+                    All
+                  </button>
+                  <button
+                    onClick={() => setAssetTypeFilter("crypto")}
+                    className={`px-3 py-1 rounded-lg transition-all ${
+                      assetTypeFilter === "crypto" ? "bg-[#252932] text-white font-bold" : "text-neutral-400 hover:text-white"
+                    }`}
+                  >
+                    Crypto
+                  </button>
+                  <button
+                    onClick={() => setAssetTypeFilter("rwa")}
+                    className={`px-3 py-1 rounded-lg transition-all ${
+                      assetTypeFilter === "rwa" ? "bg-[#252932] text-white font-bold" : "text-neutral-400 hover:text-white"
+                    }`}
+                  >
+                    RWA
+                  </button>
+                </div>
+
+                {/* Lend vs Leverage pills */}
+                <div className="flex rounded-xl bg-[#16181d] p-0.5 border border-white/[0.08]">
+                  <button
+                    onClick={() => setModeFilter("all")}
+                    className={`px-3 py-1 rounded-lg transition-all ${
+                      modeFilter === "all" ? "bg-[#252932] text-white font-bold" : "text-neutral-400 hover:text-white"
+                    }`}
+                  >
+                    All
+                  </button>
+                  <button
+                    onClick={() => setModeFilter("lend")}
+                    className={`px-3 py-1 rounded-lg transition-all ${
+                      modeFilter === "lend" ? "bg-[#252932] text-white font-bold" : "text-neutral-400 hover:text-white"
+                    }`}
+                  >
+                    Lend
+                  </button>
+                  <button
+                    onClick={() => setModeFilter("leverage")}
+                    className={`px-3 py-1 rounded-lg transition-all ${
+                      modeFilter === "leverage" ? "bg-[#252932] text-white font-bold" : "text-neutral-400 hover:text-white"
+                    }`}
+                  >
+                    Leverage
+                  </button>
                 </div>
               </div>
-            )}
 
-            <div>
-              <div className="flex justify-between text-[10px] text-[#848e9c] mb-1">
-                <span>Order Size</span>
-                <span>Avail: 142.5 MON</span>
-              </div>
-              <div className="flex items-center bg-[#121418] border border-[#1e222d] rounded px-2.5 py-1.5">
+              {/* Search Box */}
+              <div className="flex items-center gap-2 bg-[#16181d] border border-white/[0.08] rounded-xl px-3 py-1.5 text-xs text-white">
+                <Search className="w-3.5 h-3.5 text-neutral-400" />
                 <input
                   type="text"
-                  value={orderAmount}
-                  onChange={(e) => setOrderAmount(e.target.value)}
-                  className="bg-transparent text-white w-full outline-none tabular-nums"
+                  placeholder="Search opportunities..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="bg-transparent outline-none text-xs w-40 placeholder:text-neutral-500"
                 />
-                <span className="text-[#848e9c] text-[11px]">MON</span>
+              </div>
+            </div>
+
+            {/* Opportunities Table (Exact Gearbox Format from Screenshot) */}
+            <div className="gearbox-card overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-[#111217] border-b border-white/[0.08] text-neutral-400 font-semibold uppercase tracking-wider text-[11px]">
+                    <tr>
+                      <th className="py-3.5 px-5">Opportunity</th>
+                      <th className="py-3.5 px-4">Type</th>
+                      <th className="py-3.5 px-4">Total Supply</th>
+                      <th className="py-3.5 px-4">APY</th>
+                      <th className="py-3.5 px-4">Collateral</th>
+                      <th className="py-3.5 px-5 text-right">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/[0.06]">
+                    {filteredOpportunities.map((opp) => (
+                      <tr key={opp.id} className="hover:bg-[#1a1c22] transition-colors">
+                        <td className="py-4 px-5">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full bg-[#20242e] border border-white/[0.1] flex items-center justify-center font-bold text-xs text-[#E1007E]">
+                              {opp.name.slice(0, 2).toUpperCase()}
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <span className="font-bold text-white text-sm">{opp.name}</span>
+                                <span className="text-[10px] px-1.5 py-0.2 rounded bg-white/[0.08] text-neutral-300 font-bold">
+                                  {opp.tag}
+                                </span>
+                              </div>
+                              <span className="text-[11px] text-neutral-400 font-mono">{opp.curator}</span>
+                            </div>
+                          </div>
+                        </td>
+
+                        <td className="py-4 px-4">
+                          <span
+                            className={`inline-block px-2.5 py-1 rounded-full text-[11px] font-bold ${
+                              opp.type === "Leverage"
+                                ? "bg-[#1a2b4c] text-[#4da2ff]"
+                                : "bg-[#133827] text-[#26d07c]"
+                            }`}
+                          >
+                            {opp.type}
+                          </span>
+                        </td>
+
+                        <td className="py-4 px-4 font-mono">
+                          <div className="font-bold text-white text-sm tabular-nums">{opp.totalSupply}</div>
+                          <div className="text-[10px] text-neutral-500 tabular-nums">{opp.supplyUnit}</div>
+                        </td>
+
+                        <td className="py-4 px-4 font-mono">
+                          <div className="font-bold text-white text-sm tabular-nums flex items-center gap-1">
+                            <span>{opp.apy}</span>
+                            {opp.apyHighlight && <span className="text-[#E1007E] text-xs font-bold">+</span>}
+                          </div>
+                          <span className="text-[10px] text-neutral-500">Max {opp.maxLev}</span>
+                        </td>
+
+                        <td className="py-4 px-4">
+                          <div className="flex items-center -space-x-1.5">
+                            {opp.collaterals.map((c, idx) => (
+                              <div
+                                key={idx}
+                                className="w-6 h-6 rounded-full bg-[#252834] border border-white/[0.15] flex items-center justify-center text-[9px] font-bold text-neutral-200"
+                                title={c}
+                              >
+                                {c.slice(0, 2)}
+                              </div>
+                            ))}
+                          </div>
+                        </td>
+
+                        <td className="py-4 px-5 text-right">
+                          <button
+                            onClick={() => {
+                              playTick();
+                              setSelectedStrategy(opp);
+                            }}
+                            className="px-4 py-1.5 rounded-full bg-[#E1007E]/15 hover:bg-[#E1007E] text-[#E1007E] hover:text-white border border-[#E1007E]/30 font-bold text-xs transition-all"
+                          >
+                            {opp.type === "Leverage" ? "Open Account" : "Deposit"}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
+        )}
 
-          {/* Gearbox Leverage Slider */}
-          <div className="bg-[#121418] border border-[#1e222d] rounded-lg p-3 space-y-2 font-mono text-xs">
-            <div className="flex justify-between items-center">
-              <span className="text-[#848e9c] text-[11px]">Advance Credit Leverage</span>
-              <span className="text-[#50E3C2] font-bold text-sm tabular-nums">{leverage}x</span>
+        {/* Tab 2: Agentic Credit Workspace */}
+        {activeTab === "agentic" && (
+          <div className="flex flex-col gap-6">
+            <div>
+              <h1 className="text-3xl font-extrabold text-white tracking-tight">Agentic Credit Facility</h1>
+              <p className="text-xs sm:text-sm text-neutral-400 mt-1">
+                Permissionless credit lines issued to autonomous AI agents with bounded invariant checking
+              </p>
             </div>
 
-            <input
-              type="range"
-              min="1"
-              max="10"
-              step="1"
-              value={leverage}
-              onChange={(e) => setLeverage(Number(e.target.value))}
-              className="w-full accent-[#50E3C2] cursor-pointer"
-            />
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2 gearbox-card p-6 space-y-4">
+                <div className="flex items-center gap-2 text-[#E1007E] font-bold text-sm">
+                  <Bot className="w-4 h-4" />
+                  <span>Autonomous Credit Account Policy</span>
+                </div>
 
-            <div className="flex justify-between text-[9px] text-[#848e9c]">
-              <span>1x Spot</span>
-              <span>4x Safe</span>
-              <span>10x Max</span>
-            </div>
-          </div>
+                <p className="text-xs text-neutral-300 leading-relaxed">
+                  In Gearbox Protocol on Monad, capital never leaves the credit account. Autonomous agents execute high-frequency trades on Kuru CLOB, but smart contract invariants prevent any transfer of funds to arbitrary attacker addresses.
+                </p>
 
-          {/* Trade Risk Summary */}
-          <div className="space-y-1.5 font-mono text-[11px] text-[#848e9c] border-t border-[#1e222d] pt-2.5">
-            <div className="flex justify-between">
-              <span>Total Position:</span>
-              <span className="text-white tabular-nums">{(parseFloat(orderAmount || "0") * leverage).toFixed(2)} MON</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Credit Borrowed:</span>
-              <span className="text-[#50E3C2] tabular-nums">{(parseFloat(orderAmount || "0") * (leverage - 1)).toFixed(2)} MON</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Liquidation Price:</span>
-              <span className="text-[#f6465d] tabular-nums">$19.22 (-22.6%)</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Cassie VaR Score:</span>
-              <span className="text-[#0ecb81] font-bold">PASS (Score: 94)</span>
-            </div>
-          </div>
-
-          {/* Submit Action Button */}
-          <button
-            onClick={handleExecuteTrade}
-            disabled={isSubmitting}
-            className={`w-full py-2.5 rounded-lg font-mono font-bold text-xs uppercase tracking-wider transition-all shadow-lg ${
-              orderSide === "buy"
-                ? "bg-[#0ecb81] hover:bg-[#10df8e] text-black shadow-[0_0_15px_rgba(14,203,129,0.3)]"
-                : "bg-[#f6465d] hover:bg-[#ff556c] text-white shadow-[0_0_15px_rgba(246,70,93,0.3)]"
-            } disabled:opacity-50`}
-          >
-            {isSubmitting ? "Executing on Monad..." : `${orderSide.toUpperCase()} ${selectedPair}`}
-          </button>
-
-          {txSuccess && (
-            <div className="p-2.5 rounded bg-[#0ecb81]/10 border border-[#0ecb81]/30 text-[#0ecb81] font-mono text-[10px] space-y-1">
-              <div className="font-bold flex items-center gap-1">
-                <CheckCircle2 className="w-3 h-3" /> Confirmed
+                <div className="grid grid-cols-2 gap-3 pt-2 font-mono text-xs">
+                  <div className="p-3 rounded-xl bg-[#111217] border border-white/[0.06]">
+                    <span className="text-neutral-500 block text-[10px]">DOWNWARD BOUND</span>
+                    <span className="text-white font-bold text-sm">Child Cap ≤ Parent Cap</span>
+                  </div>
+                  <div className="p-3 rounded-xl bg-[#111217] border border-white/[0.06]">
+                    <span className="text-neutral-500 block text-[10px]">PRE-SIGNING VaR</span>
+                    <span className="text-emerald-400 font-bold text-sm">Cassie Risk Gate Active</span>
+                  </div>
+                </div>
               </div>
-              <p className="text-neutral-300">{txSuccess}</p>
+
+              <div className="gearbox-card p-6 flex flex-col justify-between space-y-4">
+                <div>
+                  <h3 className="font-bold text-white text-base">Continuous Clearing</h3>
+                  <p className="text-xs text-neutral-400 mt-1">
+                    Continuous credit clearing protocol clears debt positions each Monad block (~340ms).
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => setActiveTab("earn")}
+                  className="gearbox-btn-pink w-full text-center text-xs"
+                >
+                  Explore Credit Accounts
+                </button>
+              </div>
             </div>
-          )}
+          </div>
+        )}
+
+        {/* Tab 3: Positions */}
+        {activeTab === "positions" && (
+          <div className="flex flex-col gap-6">
+            <h1 className="text-3xl font-extrabold text-white tracking-tight">Active Credit Accounts</h1>
+            <div className="gearbox-card p-8 text-center space-y-3">
+              <div className="w-12 h-12 rounded-full bg-[#E1007E]/20 text-[#E1007E] flex items-center justify-center mx-auto">
+                <Lock className="w-6 h-6" />
+              </div>
+              <h3 className="text-base font-bold text-white">1 Credit Account Active on Monad</h3>
+              <p className="text-xs text-neutral-400 max-w-md mx-auto">
+                Account 0x71c...99a2 holds 22.0 MON collateral with 14.5 MON borrowed on Kuru Scalper v1.4. Health Factor: 1.82 (Healthy).
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Tab 4: Kuru CLOB Terminal */}
+        {activeTab === "kuru" && (
+          <div className="flex flex-col gap-6">
+            <h1 className="text-3xl font-extrabold text-white tracking-tight">Kuru Parallel CLOB</h1>
+            <div className="h-[500px] gearbox-card overflow-hidden">
+              <AuraTradingChart pair="MON-PERP" />
+            </div>
+          </div>
+        )}
+      </main>
+
+      {/* Credit Account Provisioning Modal (Gearbox Style) */}
+      {selectedStrategy && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="gearbox-card max-w-lg w-full p-6 space-y-5 bg-[#14161d] border border-white/[0.12] shadow-2xl animate-fadeIn">
+            <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
+              <div>
+                <h3 className="font-extrabold text-white text-base">Open Credit Account</h3>
+                <span className="text-xs text-[#E1007E] font-mono">{selectedStrategy.name}</span>
+              </div>
+              <button
+                onClick={() => setSelectedStrategy(null)}
+                className="text-neutral-400 hover:text-white text-sm"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Deposit Amount */}
+            <div className="space-y-1.5">
+              <div className="flex justify-between text-xs text-neutral-400">
+                <span>Collateral Deposit</span>
+                <span>Avail: 142.5 MON</span>
+              </div>
+              <div className="flex items-center bg-[#0d0e12] border border-white/[0.08] rounded-xl px-3 py-2 text-white">
+                <input
+                  type="text"
+                  value={depositAmount}
+                  onChange={(e) => setDepositAmount(e.target.value)}
+                  className="bg-transparent outline-none w-full font-mono text-sm"
+                />
+                <span className="text-xs font-bold text-neutral-400">MON</span>
+              </div>
+            </div>
+
+            {/* Leverage Slider */}
+            <div className="space-y-2">
+              <div className="flex justify-between text-xs">
+                <span className="text-neutral-400">Credit Leverage</span>
+                <span className="text-[#E1007E] font-bold font-mono">{selectedLeverage}x</span>
+              </div>
+              <input
+                type="range"
+                min="1"
+                max="10"
+                step="1"
+                value={selectedLeverage}
+                onChange={(e) => setSelectedLeverage(Number(e.target.value))}
+                className="w-full accent-[#E1007E] cursor-pointer"
+              />
+              <div className="flex justify-between text-[10px] text-neutral-500 font-mono">
+                <span>1x (Spot)</span>
+                <span>4x (Balanced)</span>
+                <span>10x (Max)</span>
+              </div>
+            </div>
+
+            {/* Invariant Summary */}
+            <div className="p-3.5 rounded-xl bg-[#0d0e12] border border-white/[0.06] space-y-2 text-xs font-mono">
+              <div className="flex justify-between text-neutral-400">
+                <span>Borrowed Credit:</span>
+                <span className="text-white font-bold">{(parseFloat(depositAmount || "0") * (selectedLeverage - 1)).toFixed(2)} MON</span>
+              </div>
+              <div className="flex justify-between text-neutral-400">
+                <span>Total Exposure:</span>
+                <span className="text-white font-bold">{(parseFloat(depositAmount || "0") * selectedLeverage).toFixed(2)} MON</span>
+              </div>
+              <div className="flex justify-between text-neutral-400">
+                <span>Health Factor:</span>
+                <span className="text-emerald-400 font-bold">1.82 (Healthy)</span>
+              </div>
+              <div className="flex justify-between text-neutral-400">
+                <span>Cassie Pre-Flight:</span>
+                <span className="text-emerald-400 font-bold">PASS (Score 94)</span>
+              </div>
+            </div>
+
+            {/* Submit Button */}
+            <button
+              onClick={handleOpenAccount}
+              disabled={isSubmitting}
+              className="gearbox-btn-pink w-full py-3 text-sm font-bold uppercase tracking-wider disabled:opacity-50"
+            >
+              {isSubmitting ? "Provisioning on Monad..." : "Confirm & Open Credit Account"}
+            </button>
+
+            {txSuccess && (
+              <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono text-xs">
+                {txSuccess}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

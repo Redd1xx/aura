@@ -1,51 +1,69 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  /* Hyperliquid Official Color System */
-  --background: #090909;
-  --foreground: #f7f8f8;
-  --hl-canvas: #090909;
-  --hl-surface: #121418;
-  --hl-surface-raised: #161922;
-  --hl-surface-hover: #1c202a;
-  --hl-border: #1e222d;
-  --hl-border-light: rgba(255, 255, 255, 0.08);
+  /* Official Gearbox Protocol Color System */
+  --gb-canvas: #0d0e12;
+  --gb-surface: #16181d;
+  --gb-surface-hover: #1f2229;
+  --gb-border: rgba(255, 255, 255, 0.08);
+  --gb-border-subtle: rgba(255, 255, 255, 0.05);
 
-  /* Semantic Trading Accents */
-  --hl-mint: #50E3C2;
-  --hl-mint-hover: #6efbdc;
-  --hl-green: #0ecb81;
-  --hl-red: #f6465d;
-  --hl-text-muted: #848e9c;
-  --hl-text-subtle: #565d68;
+  /* Brand Accents */
+  --gb-pink: #E1007E;
+  --gb-pink-hover: #ff1a8c;
+  --gb-blue: #4da2ff;
+  --gb-green: #26d07c;
 
-  /* Typography Stacks */
+  /* Typography */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
+  color: #ffffff;
+  background-color: var(--gb-canvas);
   font-family: var(--font-sans);
   overflow-x: hidden;
-  letter-spacing: -0.011em;
+  letter-spacing: -0.015em;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Hyperliquid TradingView Canvas Ground */
-.hyperliquid-canvas {
-  background-color: var(--hl-canvas);
+/* Gearbox Card & Pill Utilities */
+.gearbox-card {
+  background-color: var(--gb-surface);
+  border: 1px solid var(--gb-border);
+  border-radius: 16px;
+  transition: all 0.2s ease;
 }
 
-.hyperliquid-panel {
-  background-color: var(--hl-surface);
-  border-color: var(--hl-border);
+.gearbox-card:hover {
+  background-color: var(--gb-surface-hover);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.gearbox-btn-pink {
+  background-color: var(--gb-pink);
+  color: #ffffff;
+  font-weight: 700;
+  border-radius: 9999px;
+  padding: 8px 20px;
+  transition: all 0.15s ease;
+  box-shadow: 0 4px 16px rgba(225, 0, 126, 0.35);
+}
+
+.gearbox-btn-pink:hover {
+  background-color: var(--gb-pink-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(225, 0, 126, 0.5);
+}
+
+.gearbox-btn-pink:active {
+  transform: translateY(0);
 }
 
 .tabular-numbers {
@@ -53,18 +71,18 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-/* Hyperliquid subtle scrollbars */
+/* Scrollbar */
 ::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: #090909;
+  background: var(--gb-canvas);
 }
 ::-webkit-scrollbar-thumb {
-  background: #232733;
-  border-radius: 2px;
+  background: #282c35;
+  border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--hl-mint);
+  background: var(--gb-pink);
 }
