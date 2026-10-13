@@ -83,7 +83,7 @@ export const AuraTerminal: React.FC = () => {
     },
   ]);
 
-  const vaultAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3" as `0x${string}`;
+  const vaultAddress = "0x0ba18878d80d7d901ebc0165f76dbe77f96b0f03" as `0x${string}`;
 
   const fetchMetrics = async () => {
     try {

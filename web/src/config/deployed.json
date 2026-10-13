@@ -1,0 +1,10 @@
+{
+  "chainId": 10143,
+  "deployedAt": "2026-10-13T18:22:44.837Z",
+  "network": "Monad Testnet",
+  "deployer": "0x595A7A733583B3D50FEB7b2a71a759ffc11931fb",
+  "contracts": {
+    "AuraVault": "0x0ba18878d80d7d901ebc0165f76dbe77f96b0f03",
+    "AuraCreditEngine": "0x66380e69c44b079d9d4e5316e60a8b54c8754796"
+  }
+}
