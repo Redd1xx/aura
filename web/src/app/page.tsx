@@ -95,7 +95,7 @@ export default function Home() {
       id: "opp-2",
       name: "Kuru CLOB Scalper / MON",
       symbol: "MON",
-      curator: "Advance Bounded Operator",
+      curator: "Aura Bounded Operator",
       tag: "AGENTIC",
       type: "Leverage",
       totalSupply: "$3.82M",
@@ -125,9 +125,9 @@ export default function Home() {
     },
     {
       id: "opp-4",
-      name: "T3tris Automated LP Rebalancer",
+      name: "Algorithmic LP Rebalancer",
       symbol: "sUSDe",
-      curator: "T3tris Algorithmic Labs",
+      curator: "Aura Quantitative Labs",
       tag: "RWA-YIELD",
       type: "Leverage",
       totalSupply: "$5.14M",
@@ -306,16 +306,14 @@ export default function Home() {
           <div className="flex items-center gap-8">
           {/* Brand Logo */}
           <div className="flex items-center gap-3 cursor-pointer" onClick={() => setActiveTab("earn")}>
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#E1007E] to-[#ff47ac] flex items-center justify-center shadow-[0_0_16px_rgba(225,0,126,0.45)]">
-              <Zap className="w-5 h-5 text-white fill-white" />
-            </div>
+            <img src="/logo.jpg" alt="Aura" className="w-9 h-9 rounded-xl object-cover shadow-[0_0_16px_rgba(225,0,126,0.45)]" />
             <div className="flex flex-col">
               <div className="flex items-center gap-1.5 leading-none">
                 <span className="text-lg font-black tracking-wider text-white">AURA</span>
                 <span className="text-lg font-bold tracking-tight text-[#E1007E]">VAULT</span>
               </div>
               <span className="text-[10px] text-neutral-400 font-mono tracking-wider uppercase mt-0.5">
-                Gearbox Core Engine
+                Autonomous Credit Engine
               </span>
             </div>
           </div>
@@ -418,7 +416,7 @@ export default function Home() {
             <div className="flex items-center gap-2">
               <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
                 {activeTab === "earn" && "Senior Lending & Passive Pools"}
-                {activeTab === "leverage" && "Gearbox Composable Credit Accounts"}
+                {activeTab === "leverage" && "Aura Composable Credit Accounts"}
                 {activeTab === "positions" && "Active Isolated Positions & Margin Health"}
                 {activeTab === "kuru" && "Kuru High-Throughput Central Orderbook"}
                 {activeTab === "auctions" && "Sub-Second Liquidation Dutch Auction Corridor"}
@@ -818,7 +816,7 @@ export default function Home() {
                   <div>
                     <span className="text-white font-bold block">Execution Boundary Policy</span>
                     <span className="text-[10px] text-neutral-400">
-                      Isolated contract sandbox: Only allowed to trade on Kuru CLOB & deposit into T3tris
+                      Isolated contract sandbox: Only allowed to trade on Kuru CLOB & deposit into verified Aura pools
                     </span>
                   </div>
                 </div>

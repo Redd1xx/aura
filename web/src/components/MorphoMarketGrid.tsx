@@ -28,7 +28,7 @@ export const MorphoMarketGrid: React.FC<{ onSelectPair?: (pair: string) => void 
       collateral: "MON",
       loanAsset: "USDC",
       lltv: "86.0%",
-      curator: "Advance Risk Engine v2",
+      curator: "Aura Risk Engine v2",
       totalSupply: "142.50 MON",
       totalBorrow: "38.45 MON",
       supplyApy: "14.2%",
@@ -40,7 +40,7 @@ export const MorphoMarketGrid: React.FC<{ onSelectPair?: (pair: string) => void 
       collateral: "MON",
       loanAsset: "USDT",
       lltv: "84.0%",
-      curator: "T3tris Automated Vault",
+      curator: "Aura Automated Vault",
       totalSupply: "98.20 MON",
       totalBorrow: "34.10 MON",
       supplyApy: "13.9%",
@@ -64,7 +64,7 @@ export const MorphoMarketGrid: React.FC<{ onSelectPair?: (pair: string) => void 
       collateral: "DAK",
       loanAsset: "MON",
       lltv: "80.0%",
-      curator: "Dakota Institutional Vault",
+      curator: "Aura Institutional Vault",
       totalSupply: "32.10 MON",
       totalBorrow: "15.40 MON",
       supplyApy: "19.5%",
@@ -87,7 +87,7 @@ export const MorphoMarketGrid: React.FC<{ onSelectPair?: (pair: string) => void 
         <div className="flex items-center gap-2">
           <Layers className="w-4 h-4 text-[#00f0ff]" />
           <h3 className="text-xs font-bold uppercase text-white tracking-wide">
-            MORPHO BLUE-STYLE ISOLATED MARKETS
+            AURA ISOLATED LENDING MARKETS
           </h3>
         </div>
         <span className="text-[10px] px-2 py-0.5 rounded bg-[#00f0ff]/10 text-[#00f0ff] border border-[#00f0ff]/30 font-bold">

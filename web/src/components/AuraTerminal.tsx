@@ -37,7 +37,7 @@ export const AuraTerminal: React.FC = () => {
   const [borrows, setBorrows] = useState("38.4500");
   const [creditLimit, setCreditLimit] = useState("100.0000");
   const [yieldDistributed, setYieldDistributed] = useState("12.8420");
-  const [activeTab, setActiveTab] = useState<"borrow" | "deposit" | "repay" | "cassie">("borrow");
+  const [activeTab, setActiveTab] = useState<"borrow" | "deposit" | "repay" | "var">("borrow");
 
   // Form states
   const [depositAmount, setDepositAmount] = useState("5.0");
@@ -47,7 +47,7 @@ export const AuraTerminal: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [actionSuccessMsg, setActionSuccessMsg] = useState<string | null>(null);
 
-  // Cassie simulation states
+  // VaR simulation states
   const [simRiskScore, setSimRiskScore] = useState<number>(14);
   const [isSimulating, setIsSimulating] = useState(false);
   const [simDetails, setSimDetails] = useState<any>(null);
@@ -55,7 +55,7 @@ export const AuraTerminal: React.FC = () => {
   // Active credit positions
   const [positions, setPositions] = useState<Position[]>([
     {
-      id: "ADV-0914",
+      id: "AUR-0914",
       agent: "Kuru High-Frequency Scalper",
       borrowed: "14.50 MON",
       collateral: "22.00 MON",
@@ -124,7 +124,7 @@ export const AuraTerminal: React.FC = () => {
       const added = parseFloat(depositAmount) || 1;
       setAum((prev) => (parseFloat(prev) + added).toFixed(4));
       setActionSuccessMsg(
-        `Successfully deposited ${depositAmount} MON into T3tris LP Vault! Block #${block.number} confirmed on Monad Cancun EVM.`
+        `Successfully deposited ${depositAmount} MON into Aura Senior LP Vault! Block #${block.number} confirmed on Monad Cancun EVM.`
       );
     } catch (e: any) {
       alert("Deposit error: " + e?.message);
@@ -162,7 +162,7 @@ export const AuraTerminal: React.FC = () => {
       setPositions((prev) => [newPos, ...prev]);
 
       setActionSuccessMsg(
-        `Advance Continuous Credit Line Approved: ${borrowAmount} MON disbursed! Block #${block.number} verified with Cassie VaR pre-flight score of ${simRiskScore}/100.`
+        `Aura Continuous Credit Line Approved: ${borrowAmount} MON disbursed! Block #${block.number} verified with Aura VaR pre-flight score of ${simRiskScore}/100.`
       );
     } catch (e: any) {
       alert("Borrow error: " + e?.message);
@@ -171,7 +171,7 @@ export const AuraTerminal: React.FC = () => {
     }
   };
 
-  const handleRunCassieSim = async () => {
+  const handleRunVarSim = async () => {
     playTick();
     setIsSimulating(true);
     try {
@@ -205,7 +205,7 @@ export const AuraTerminal: React.FC = () => {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 font-mono">
         <div className="p-4 rounded-xl bg-[#090d16] border border-[#00f0ff]/20 hover:border-[#00f0ff]/40 transition-all shadow-lg">
           <div className="flex items-center justify-between text-[11px] text-neutral-400">
-            <span>T3TRIS VAULT AUM</span>
+            <span>AURA SENIOR VAULT AUM</span>
             <Vault className="w-3.5 h-3.5 text-[#00f0ff]" />
           </div>
           <div className="text-xl sm:text-2xl font-bold text-white mt-1.5">{aum} MON</div>
@@ -276,21 +276,21 @@ export const AuraTerminal: React.FC = () => {
               }`}
             >
               <Vault className="w-3.5 h-3.5" />
-              <span>Deposit T3tris LP</span>
+              <span>Deposit Senior LP</span>
             </button>
             <button
               onClick={() => {
                 playTick();
-                setActiveTab("cassie");
+                setActiveTab("var");
               }}
               className={`px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1.5 ${
-                activeTab === "cassie"
+                activeTab === "var"
                   ? "bg-[#00f0ff] text-black shadow-md"
                   : "text-neutral-400 hover:text-white"
               }`}
             >
               <ShieldCheck className="w-3.5 h-3.5" />
-              <span>Cassie VaR Radar</span>
+              <span>Aura VaR Radar</span>
             </button>
           </div>
 
@@ -408,7 +408,7 @@ export const AuraTerminal: React.FC = () => {
           </div>
         )}
 
-        {/* Tab 2: Deposit T3tris LP */}
+        {/* Tab 2: Deposit Senior LP */}
         {activeTab === "deposit" && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 font-mono text-xs">
             <div className="space-y-4">
@@ -449,14 +449,14 @@ export const AuraTerminal: React.FC = () => {
                 className="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-400 to-teal-500 hover:brightness-110 text-black font-extrabold uppercase tracking-wide transition-all shadow-lg flex items-center justify-center gap-2"
               >
                 {isSubmitting ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Vault className="w-4 h-4" />}
-                <span>{isSubmitting ? "Minting T3tris LP Shares..." : "Deposit Liquidity into T3tris LP"}</span>
+                <span>{isSubmitting ? "Minting Senior LP Shares..." : "Deposit Liquidity into Senior LP"}</span>
               </button>
             </div>
 
             <div className="p-4 rounded-xl bg-[#05080f] border border-white/[0.06] flex flex-col justify-between space-y-3">
               <div className="space-y-2.5">
                 <div className="text-neutral-400 font-bold uppercase text-[11px] border-b border-white/[0.08] pb-1.5">
-                  T3tris 80/20 LP Revenue Architecture
+                  Aura 80/20 LP Revenue Architecture
                 </div>
                 <div className="flex justify-between">
                   <span className="text-neutral-500">Passive LP Yield Share:</span>
@@ -484,18 +484,18 @@ export const AuraTerminal: React.FC = () => {
           </div>
         )}
 
-        {/* Tab 3: Cassie VaR Pre-Flight Simulator */}
-        {activeTab === "cassie" && (
+        {/* Tab 3: Aura VaR Pre-Flight Simulator */}
+        {activeTab === "var" && (
           <div className="space-y-4 font-mono text-xs">
             <div className="flex items-center justify-between">
               <div>
-                <h4 className="text-sm font-bold text-white uppercase">Cassie Value-at-Risk Engine</h4>
+                <h4 className="text-sm font-bold text-white uppercase">Aura Value-at-Risk Engine</h4>
                 <p className="text-neutral-400 text-[11px]">
                   Real-time pre-flight Cancun simulation evaluating adversarial MEV and orderbook slippage.
                 </p>
               </div>
               <button
-                onClick={handleRunCassieSim}
+                onClick={handleRunVarSim}
                 disabled={isSimulating}
                 className="px-4 py-2 rounded-xl bg-[#00f0ff] hover:bg-[#00d0df] text-black font-extrabold uppercase flex items-center gap-2 transition-all shadow-md"
               >

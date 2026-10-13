@@ -33,7 +33,7 @@ export const GearboxCreditAccount: React.FC = () => {
         borrowed: `${calculatedBorrow} MON`,
         totalExposure: `${totalPosition} MON`,
         healthFactor,
-        whitelistPolicy: "Gearbox-Style Isolated Sandbox: Can ONLY call Kuru DEX & T3tris Vault",
+        whitelistPolicy: "Aura Isolated Sandbox: Can ONLY call Kuru DEX & Aura Senior Vault",
       });
     } catch (e: any) {
       alert("Error opening credit account: " + e?.message);
@@ -43,7 +43,7 @@ export const GearboxCreditAccount: React.FC = () => {
   };
 
   return (
-    <div className="aura-card rounded-2xl p-5 flex flex-col gap-5 font-mono text-xs shadow-2xl">
+    <div className="aura-card rounded-2xl p-5 flex flex-col gap-4 font-mono text-xs shadow-2xl">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between border-b border-white/[0.08] pb-3 gap-2">
         <div className="flex items-center gap-2.5">
@@ -52,9 +52,9 @@ export const GearboxCreditAccount: React.FC = () => {
           </div>
           <div>
             <h3 className="text-xs font-bold uppercase text-white tracking-wide flex items-center gap-2">
-              GEARBOX-STYLE ISOLATED CREDIT ACCOUNT
+              AURA ISOLATED CREDIT ACCOUNT
               <span className="text-[10px] px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30 font-bold lowercase">
-                advance bounded
+                bounded leverage
               </span>
             </h3>
             <p className="text-[11px] text-neutral-400">
@@ -120,7 +120,7 @@ export const GearboxCreditAccount: React.FC = () => {
                 ✓ Kuru DEX CLOB Router (0xcf7e...0fc9)
               </span>
               <span className="px-2 py-0.5 rounded bg-[#00f0ff]/10 text-[#00f0ff] border border-[#00f0ff]/30">
-                ✓ T3tris 80/20 LP Vault (0x5fbd...0aa3)
+                ✓ Aura Senior LP Vault (0x0ba1...0f03)
               </span>
               <span className="px-2 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/30">
                 ✕ External Wallet Transfer (Hard-Revert)
