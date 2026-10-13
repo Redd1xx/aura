@@ -409,9 +409,78 @@ export default function Home() {
       </div>
     </header>
 
+      {/* Mobile Swipeable Tab Bar for All Small Devices */}
+      <div className="lg:hidden border-b border-white/[0.08] bg-[#101217]/95 backdrop-blur-md sticky top-16 z-40 px-4 py-2 flex items-center gap-2 overflow-x-auto no-scrollbar touch-scroll">
+        <button
+          onClick={() => {
+            playTick();
+            setActiveTab("earn");
+          }}
+          className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
+            activeTab === "earn"
+              ? "bg-[#E1007E] text-white shadow-sm"
+              : "text-neutral-400 bg-white/[0.04] hover:text-white"
+          }`}
+        >
+          Earn & Lend
+        </button>
+        <button
+          onClick={() => {
+            playTick();
+            setActiveTab("leverage");
+          }}
+          className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
+            activeTab === "leverage"
+              ? "bg-[#E1007E] text-white shadow-sm"
+              : "text-neutral-400 bg-white/[0.04] hover:text-white"
+          }`}
+        >
+          Leverage Studio
+        </button>
+        <button
+          onClick={() => {
+            playTick();
+            setActiveTab("positions");
+          }}
+          className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
+            activeTab === "positions"
+              ? "bg-[#E1007E] text-white shadow-sm"
+              : "text-neutral-400 bg-white/[0.04] hover:text-white"
+          }`}
+        >
+          My Accounts
+        </button>
+        <button
+          onClick={() => {
+            playTick();
+            setActiveTab("kuru");
+          }}
+          className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
+            activeTab === "kuru"
+              ? "bg-[#E1007E] text-white shadow-sm"
+              : "text-neutral-400 bg-white/[0.04] hover:text-white"
+          }`}
+        >
+          Kuru CLOB
+        </button>
+        <button
+          onClick={() => {
+            playTick();
+            setActiveTab("auctions");
+          }}
+          className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
+            activeTab === "auctions"
+              ? "bg-[#E1007E] text-white shadow-sm"
+              : "text-neutral-400 bg-white/[0.04] hover:text-white"
+          }`}
+        >
+          Auctions
+        </button>
+      </div>
+
       {/* 2. SUB-HEADER METRIC STRIP */}
       <section className="border-b border-white/[0.06] bg-[#0e1015] py-5">
-        <div className="max-w-[1440px] w-full mx-auto px-6 sm:px-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="max-w-[1440px] w-full mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">

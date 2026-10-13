@@ -1,9 +1,18 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "AURA Vault | Composable Credit & High-Velocity Yield on Monad",
   description: "Autonomous Liquidity Vault & Continuous Isolated Credit Accounts on Monad Cancun Testnet",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  themeColor: "#0b0c10",
+  colorScheme: "dark",
 };
 
 export default function RootLayout({
