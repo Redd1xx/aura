@@ -301,8 +301,9 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#0b0c10] text-white flex flex-col antialiased selection:bg-[#E1007E]/30 selection:text-white">
       {/* 1. TOP NAVBAR */}
-      <header className="h-16 border-b border-white/[0.08] bg-[#101217]/90 backdrop-blur-md px-4 sm:px-8 flex items-center justify-between sticky top-0 z-50">
-        <div className="flex items-center gap-8">
+      <header className="border-b border-white/[0.08] bg-[#101217]/90 backdrop-blur-md sticky top-0 z-50">
+        <div className="max-w-[1440px] w-full mx-auto px-6 sm:px-8 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-8">
           {/* Brand Logo */}
           <div className="flex items-center gap-3 cursor-pointer" onClick={() => setActiveTab("earn")}>
             <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#E1007E] to-[#ff47ac] flex items-center justify-center shadow-[0_0_16px_rgba(225,0,126,0.45)]">
@@ -407,11 +408,12 @@ export default function Home() {
             <span>Connect Wallet</span>
           </button>
         </div>
-      </header>
+      </div>
+    </header>
 
       {/* 2. SUB-HEADER METRIC STRIP */}
-      <section className="border-b border-white/[0.06] bg-[#0e1015] px-4 sm:px-8 py-5">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <section className="border-b border-white/[0.06] bg-[#0e1015] py-5">
+        <div className="max-w-[1440px] w-full mx-auto px-6 sm:px-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
@@ -454,7 +456,7 @@ export default function Home() {
       </section>
 
       {/* 3. MAIN WORKSPACE */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-8 py-8 flex flex-col gap-8">
+      <main className="flex-1 max-w-[1440px] w-full mx-auto px-6 sm:px-8 py-8 flex flex-col gap-8">
         {/* TAB 1: EARN & LEND POOLS */}
         {activeTab === "earn" && (
           <div className="flex flex-col gap-6">
@@ -1080,17 +1082,19 @@ export default function Home() {
       </main>
 
       {/* 4. FOOTER */}
-      <footer className="border-t border-white/[0.06] bg-[#0d0e12] px-4 sm:px-8 py-6 text-xs text-neutral-500 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="w-5 h-5 rounded bg-[#E1007E] flex items-center justify-center text-[10px] text-white font-black">
-            A
+      <footer className="border-t border-white/[0.06] bg-[#0d0e12] py-6 text-xs text-neutral-500">
+        <div className="max-w-[1440px] w-full mx-auto px-6 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-5 h-5 rounded bg-[#E1007E] flex items-center justify-center text-[10px] text-white font-black">
+              A
+            </div>
+            <span>AURA Vault — Monad Metropolis Hackathon Track 01</span>
           </div>
-          <span>AURA Vault — Monad Metropolis Hackathon Track 01</span>
-        </div>
-        <div className="flex items-center gap-6 font-mono text-[11px]">
-          <span>Monad Cancun Parallel EVM</span>
-          <span>Gearbox v3 Credit Invariants</span>
-          <span className="text-neutral-400">Zero Slop Guaranteed</span>
+          <div className="flex items-center gap-6 font-mono text-[11px]">
+            <span>Monad Cancun Parallel EVM</span>
+            <span>Gearbox v3 Credit Invariants</span>
+            <span className="text-neutral-400">Zero Slop Guaranteed</span>
+          </div>
         </div>
       </footer>
 
